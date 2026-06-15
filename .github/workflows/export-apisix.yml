@@ -1,0 +1,38 @@
+name: Export APISIX Images
+
+# 允许你随时手动点按钮触发
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Free up disk space (important!)
+        run: |
+          # GitHub runners 默认磁盘有点满，先清一下
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/hostedtoolcache/CodeQL
+          sudo rm -rf /usr/local/lib/android
+          df -h
+
+      - name: Pull images
+        run: |
+          docker pull apache/apisix:3.11.0-debian-12
+          docker pull bitnami/etcd:3.5.15-debian-12-r2
+          echo "=== Images pulled ==="
+          docker images | grep -E "apisix|etcd"
+
+      - name: Save images to tar
+        run: |
+          docker save apache/apisix:3.11.0-debian-12 bitnami/etcd:3.5.15-debian-12-r2 \
+            -o /tmp/apisix-bundle.tar
+          ls -lh /tmp/apisix-bundle.tar
+
+      - name: Upload tar as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: apisix-bundle
+          path: /tmp/apisix-bundle.tar
+          retention-days: 7
