@@ -19,14 +19,14 @@ jobs:
 
       - name: Pull images
         run: |
-          docker pull apache/apisix:3.11.0
-          docker pull bitnami/etcd:3.5.15-debian-12
+          docker pull apache/apisix:3.11.0-debian
+          docker pull bitnami/etcd:3.5.15-debian
           echo "=== Images pulled ==="
           docker images | grep -E "apisix|etcd"
 
       - name: Save images to tar
         run: |
-          docker save apache/apisix:3.11.0 bitnami/etcd:3.5.15-debian-12 \
+          docker save apache/apisix:3.11.0-debian bitnami/etcd:3.5.15-debian \
             -o /tmp/apisix-bundle.tar
           ls -lh /tmp/apisix-bundle.tar
 
