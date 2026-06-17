@@ -8,15 +8,29 @@ jobs:
     steps:
       - name: Pull apisix image
         run: |
-          # 拉一个确定存在的 tag
+          # 拉取基础镜像（官方稳定版）
           docker pull apache/apisix:3.11.0-debian
-          
-          # ★ 关键：retag 成你 chart 里写的 tag 名，否则 import 后名字对不上还会 ErrImagePull
+
+      - name: Retag to exact chart version
+        run: |
+          # 重新打标签，与 Helm chart 中的 image.tag 保持一致
           docker tag apache/apisix:3.11.0-debian apache/apisix:3.11.0-debian-12
+
+      - name: Verify retagged image exists
+        run: |
+          # 确认新标签已存在，否则后续 save 会失败
+          if docker image inspect apache/apisix:3.11.0-debian-12 > /dev/null 2>&1; then
+            echo "✅ Retagged image apache/apisix:3.11.0-debian-12 is ready."
+          else
+            echo "❌ Retag failed! Aborting."
+            exit 1
+          fi
 
       - name: Save to tar
         run: |
+          # 导出为 tar 文件（只包含这一个镜像）
           docker save apache/apisix:3.11.0-debian-12 -o /tmp/apisix.tar
+          echo "Generated tar file:"
           ls -lh /tmp/apisix.tar
 
       - name: Upload artifact
