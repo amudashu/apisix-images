@@ -1,0 +1,27 @@
+name: Pull Seq Image & Download
+
+on:
+  workflow_dispatch:   # 手动触发，Actions 页点一下就跑
+
+env:
+  IMAGE: datalust/seq:2025.2
+
+jobs:
+  pull-and-save:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Pull image from Docker Hub
+        run: docker pull $IMAGE
+
+      - name: Save image to tar
+        run: |
+          docker save $IMAGE -o seq-2025.2.tar
+          # 顺手看下大小，心里有数
+          ls -lh seq-2025.2.tar
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: seq-2025.2
+          path: seq-2025.2.tar
+          retention-days: 3   # 3 天后自动清，够你 down 回去
