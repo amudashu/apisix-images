@@ -7,29 +7,29 @@ jobs:
   pull-and-save:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false          # ← 关键：单个挂不 cancel 其余
       matrix:
         include:
           - image: datalust/seq:2025.2
-            name: seq-2025.2
+            tag: seq-2025.2
           - image: prom/prometheus:v3.5.3
-            name: prometheus-v3.5.3
+            tag: prometheus-v3.5.3
           - image: grafana/grafana:12.4.4
-            name: grafana-12.4.4
-          - image: otel/opentelemetry-collector-contrib:0.124.0
-            name: otel-collector-0.124.0
-
+            tag: grafana-12.4.4
+          - image: otel/opentelemetry-collector-contrib:0.123.0
+            tag: otel-collector-0.123.0
     steps:
       - name: Pull ${{ matrix.image }}
         run: docker pull ${{ matrix.image }}
 
-      - name: Save image to tar
+      - name: Save to tar
         run: |
-          docker save ${{ matrix.image }} -o ${{ matrix.name }}.tar
-          ls -lh ${{ matrix.name }}.tar
+          docker save ${{ matrix.image }} -o ${{ matrix.tag }}.tar
+          ls -lh ${{ matrix.tag }}.tar
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.name }}
-          path: ${{ matrix.name }}.tar
+          name: ${{ matrix.tag }}
+          path: ${{ matrix.tag }}.tar
           retention-days: 3
