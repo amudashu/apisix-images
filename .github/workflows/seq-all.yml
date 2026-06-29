@@ -1,0 +1,36 @@
+name: Sync Observability Images
+
+on:
+  workflow_dispatch:
+
+env:
+  images: |
+    datalust/seq:2025.2
+    prom/prometheus:v3.5.3
+    grafana/grafana:12.4.4
+    otel/opentelemetry-collector-contrib:0.124.0
+
+jobs:
+  pull-and-save:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        image: ${{ fromJson(replace(env.images, '\n', '')) }}
+        # 上面这行其实是伪代码，matrix 不能直接 fromEnv
+        # 老实写：
+    steps:
+      - name: Pull image
+        run: docker pull ${{ matrix.image }}
+
+      - name: Save as tar
+        run: |
+          SAFE_NAME=$(echo "${{ matrix.image }}" | sed 's|/|-|g; s|:|-|g')
+          docker save ${{ matrix.image }} -o ${SAFE_NAME}.tar
+          ls -lh ${SAFE_NAME}.tar
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.image }}
+          path: "*.tar"
+          retention-days: 3
