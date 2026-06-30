@@ -1,20 +1,41 @@
-name: Mirror cadvisor v0.49.1 (tar only)
-
+name: Export Cadvisor Image
 on:
   workflow_dispatch:
 
 jobs:
-  mirror:
+  export:
     runs-on: ubuntu-latest
     steps:
-      - name: Pull gcr.io/cadvisor:v0.49.1
-        run: docker pull gcr.io/cadvisor:v0.49.1
+      - name: Pull cadvisor image
+        run: |
+          # GitHub Runner 位于境外，可直接拉取 gcr.io 镜像（无网络墙问题）
+          docker pull gcr.io/cadvisor:v0.49.1
 
-      - name: Save as tar
-        run: docker save gcr.io/cadvisor:v0.49.1 -o cadvisor-v0.49.1.tar
+      - name: Retag to standard name
+        run: |
+          # 打通用标签，与你现有 docker-compose 配置完全对齐，无需修改 compose 文件
+          docker tag gcr.io/cadvisor:v0.49.1 cadvisor/cadvisor:v0.49.1
+
+      - name: Verify retagged image exists
+        run: |
+          # 确认新标签已存在，否则后续 save 会失败
+          if docker image inspect cadvisor/cadvisor:v0.49.1 > /dev/null 2>&1; then
+            echo "✅ Retagged image cadvisor/cadvisor:v0.49.1 is ready."
+          else
+            echo "❌ Retag failed! Aborting."
+            exit 1
+          fi
+
+      - name: Save to tar
+        run: |
+          # 导出为 tar 文件（仅包含 cadvisor 镜像）
+          docker save cadvisor/cadvisor:v0.49.1 -o /tmp/cadvisor-v0.49.1.tar
+          echo "Generated tar file:"
+          ls -lh /tmp/cadvisor-v0.49.1.tar
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: cadvisor-v0.49.1
-          path: cadvisor-v0.49.1.tar
+          name: cadvisor-only
+          path: /tmp/cadvisor-v0.49.1.tar
+          retention-days: 3
