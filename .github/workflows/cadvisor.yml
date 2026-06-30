@@ -1,0 +1,20 @@
+name: Mirror cadvisor v0.49.1 (tar only)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Pull gcr.io/cadvisor:v0.49.1
+        run: docker pull gcr.io/cadvisor:v0.49.1
+
+      - name: Save as tar
+        run: docker save gcr.io/cadvisor:v0.49.1 -o cadvisor-v0.49.1.tar
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: cadvisor-v0.49.1
+          path: cadvisor-v0.49.1.tar
