@@ -7,12 +7,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Pull cadvisor image
-        run: |
-          docker pull gcr.io/cadvisor:v0.49.1
+        run: docker pull gcr.io/cadvisor:v0.49.1
 
       - name: Retag to standard name
-        run: |
-          docker tag gcr.io/cadvisor:v0.49.1 cadvisor/cadvisor:v0.49.1
+        run: docker tag gcr.io/cadvisor:v0.49.1 cadvisor/cadvisor:v0.49.1
 
       - name: Verify retagged image exists
         run: |
