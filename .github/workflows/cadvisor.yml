@@ -8,7 +8,6 @@ jobs:
     steps:
       - name: Pull cadvisor image
         run: |
-          # 注意：docker 必须顶格，前面不能有空格！
           docker pull gcr.io/cadvisor:v0.49.1
 
       - name: Retag to standard name
@@ -26,7 +25,6 @@ jobs:
 
       - name: Save and Compress to tar.gz
         run: |
-          # 直接通过管道压缩，不生成中间 tar 文件，节省磁盘空间
           docker save cadvisor/cadvisor:v0.49.1 | gzip > /tmp/cadvisor-v0.49.1.tar.gz
           echo "Generated compressed file:"
           ls -lh /tmp/cadvisor-v0.49.1.tar.gz
