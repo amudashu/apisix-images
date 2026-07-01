@@ -8,9 +8,11 @@ jobs:
     steps:
       - name: Pull cadvisor image
         run: docker pull gcr.io/cadvisor:v0.49.1
+        shell: bash 
 
       - name: Retag to standard name
         run: docker tag gcr.io/cadvisor:v0.49.1 cadvisor/cadvisor:v0.49.1
+        shell: bash
 
       - name: Verify retagged image exists
         run: |
@@ -20,12 +22,14 @@ jobs:
             echo "❌ Retag failed! Aborting."
             exit 1
           fi
+        shell: bash
 
       - name: Save and Compress to tar.gz
         run: |
           docker save cadvisor/cadvisor:v0.49.1 | gzip > /tmp/cadvisor-v0.49.1.tar.gz
           echo "Generated compressed file:"
           ls -lh /tmp/cadvisor-v0.49.1.tar.gz
+        shell: bash
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
